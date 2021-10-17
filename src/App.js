@@ -1,101 +1,167 @@
-import React, { useState } from 'react';
 import './App.css';
-import 'semantic-ui-css/semantic.min.css'
-import SemanticDatepicker from 'react-semantic-ui-datepickers';
-// import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
-import { Header, Container, Input } from 'semantic-ui-react'
-import RestaurantDropDown from './Components/RestaurantDropdown'
-import FromDropdown from './Components/FromDropdown';
-import ToDropdown from './Components/ToDropDown';
-import MetricsDropdown from './Components/MetricsDropdown';
-import SubmitButton from './Components/SubmitButton';
+import 'semantic-ui-css/semantic.min.css';
+import 'react-dates/initialize';
+import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
+import 'react-dates/lib/css/_datepicker.css';
+import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider } from "semantic-ui-react";
+import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions } from './Data/RestaurantData';
+import React, { useState } from "react";
 
-
+const initialFormData = {
+    restaurantIds: [],
+    fromDate: "",
+    toDate: "",
+    fromHour: 6,
+    toHour: 29,
+    metricCriteria: [{
+        metricCode: undefined,
+        compareType: undefined,
+        value: undefined,
+        operatorType: "And"
+    }]
+};
 
 
 function App() {
-  const [date, setDate] = useState(null);
-  const handleDateChange = (event, data) => setDate(data.value);
+    const [restaurantIds, setRestaurantIds] = useState([]);
+    const [fromHour, setFromHour] = useState(6);
+    const [toHour, setToHour] = useState(29);
+    const [startDate, setStartDate] = React.useState("");
+    const [endDate, setEndDate] = React.useState();
+    const [focusedInput, setFocusedInput] = React.useState();
 
-  return (
-    <div className='App'>
+    function onSubmit() {
+        console.log("Submit!");
+    }
 
-      <Header size='huge'>Custom Search Query</Header>
-      <Container>
-        <p>
-          (Add directions to use Custom Search Query)Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
-      </Container>
-      <Container>
-        <SemanticDatepicker onChange={handleDateChange} />
-        <pre>
-          Selected date:
-          <br />
-          {date ? date.toString() : 'No Date Selected'}
-        </pre>
+    return (
+        <div className="App">
+            <Grid>
+                <Grid.Row>
+                    <Container>
+                        <Segment className="Segment">
+                            <Grid centered>
+                                <Grid.Row columns="1">
+                                    <Grid.Column textAlign="center">
+                                        <Header as='h1' color='teal'>Custom Search Query Tool</Header>
+                                    </Grid.Column>
+                                </Grid.Row>
+                                <Grid.Row columns="1">
+                                    <Grid.Column>
+                                        <Form onSubmit={() => onSubmit()}>
+                                            <Form.Field>
+                                                <label style={{ fontWeight: "bold" }}>Restaurant Id</label>
+                                                <Dropdown
+                                                    options={restaurantIdOptions}
+                                                    placeholder={"Select Restaurant Id"}
+                                                    multiple
+                                                    selection
+                                                    onChange={(event, data) => setRestaurantIds(data.value)}
+                                                    value={restaurantIds}
+                                                />
+                                            </Form.Field>
+                                            <Form.Group widths='equal'>
+                                                <Form.Field>
+                                                    <label style={{ fontWeight: "bold" }}>Date</label>
+                                                    <DateRangePicker
+                                                        startDate={startDate}
+                                                        startDateId="start-date"
+                                                        endDate={endDate}
+                                                        endDateId="end-date"
+                                                        onDatesChange={({ startDate, endDate }) => {
+                                                            setStartDate(startDate);
+                                                            setEndDate(endDate);
+                                                        }}
+                                                        focusedInput={focusedInput}
+                                                        onFocusChange={(focusedInput) => setFocusedInput(focusedInput)}
+                                                    />
+                                                </Form.Field>
 
-        <RestaurantDropDown />
-        <ToDropdown />
-        <FromDropdown />
-        <MetricsDropdown />
-        <Input
-          placeholder="value" />
-        <br />
-        <SubmitButton />
-
-
-
-        {/* <Dropdown
-                button
-                className='icon'
-                floating
-                labeled
-                icon='food'
-                // options={languageOptions}
-                search
-                text='Select Restaurant ID'
-            />
-               <Dropdown
-                button
-                className='icon'
-                floating
-                labeled
-                icon='time'
-                // options={languageOptions}
-                search
-                text='To'
-            />
-               <Dropdown
-                button
-                className='icon'
-                floating
-                labeled
-                icon='time'
-                // options={languageOptions}
-                search
-                text='From'
-            />
-            <Dropdown
-                button
-                className='icon'
-                floating
-                labeled
-                icon='arrows alternate'
-                // options={languageOptions}
-                search
-                text='Metrics'
-            /> */}
-      </Container>
-      {/* <TimePicker
-        onChange={onChange}
-        value={value}
-      />
-       <Clock value={value} /> */}
+                                                <Form.Field
+                                                    control={Select}
+                                                    label={"Transaction Time Start"}
+                                                    options={transactionTimeOptions}
+                                                    value={fromHour}
+                                                    onChange={(event, data) => setFromHour(data.value)}
+                                                />
+                                                <Form.Field
+                                                    control={Select}
+                                                    label={"Transaction Time End"}
+                                                    options={transactionTimeOptions}
+                                                    value={toHour}
+                                                    onChange={(event, data) => setToHour(data.value)}
+                                                />
+                                            </Form.Group>.
+                                            <Form.Group widths='equal'>
+                                                <Form.Field
+                                                    control={Select}
+                                                    label='Metrics'
+                                                    options={metricOptions}
+                                                    placeholder='Metrics'
+                                                    selection
+                                                    multiple
+                                                />
 
 
+                                                <Form.Field
+                                                    control={Select}
+                                                    label='Measure Options'
+                                                    options={measureOptions}
+                                                    placeholder='Measure Options'
+                                                    selection
+                                                    size='mini'
 
-    </div>
-  );
+                                                />
+                                                <Form.Input
+                                                    fluid label='Value'
+                                                    placeholder='Value' />
+                                            </Form.Group>
+
+                                            <Form.Group>
+                                                <Form.Field>
+                                                    {/* <Button onClick={() => addCriteria()} color="violet">Add Criteria</Button> */}
+                                                </Form.Field>
+
+                                            </Form.Group>
+                                            <Form.Field>
+                                                <Button
+                                                    color="teal"
+                                                    type="submit">
+                                                    Add Criteria
+                                                </Button>
+                                            </Form.Field>
+                                            <Form.Group>
+                                                <Form.Field>
+                                                    {/* <Button onClick={() => addCriteria()} color="violet">Add Criteria</Button> */}
+                                                </Form.Field>
+
+                                            </Form.Group>
+                                            <Form.Field>
+                                                <Button
+                                                    className="submitButton"
+                                                    color="grey"
+                                                    type="submit">
+                                                    Submit
+                                                </Button>
+                                            </Form.Field>
+                                        </Form>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
+                        </Segment>
+                    </Container>
+                </Grid.Row>
+                <Divider hidden></Divider>
+                <Grid.Row>
+                    <Container>
+                        <Segment>
+                            <h3>Results</h3>
+                        </Segment>
+                    </Container>
+                </Grid.Row>
+            </Grid>
+        </div>
+    );
 }
 
 export default App;
