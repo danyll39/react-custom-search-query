@@ -9,6 +9,8 @@ const RestaurantDropdown = () => {
             label='Restaurant ID'
             options={[]}
             placeholder='Restaurant ID'
+            selection
+            multiple
         />
     </Form>
     )

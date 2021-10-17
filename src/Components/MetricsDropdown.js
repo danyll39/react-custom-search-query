@@ -16,6 +16,8 @@ const MetricsDropdown = () => {
                 label='Metrics'
                 options={metrics}
                 placeholder='Metrics'
+                selection 
+                multiple
             />
         </Form>
 

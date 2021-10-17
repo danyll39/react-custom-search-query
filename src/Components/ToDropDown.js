@@ -1,6 +1,6 @@
 import 'semantic-ui-css/semantic.min.css'
 import 'semantic-ui-css/semantic.min.css'
-import { Form, Select } from 'semantic-ui-react'
+import { Form,  Select } from 'semantic-ui-react'
 import numbers from '../Data/NumbersData'
 
 
@@ -21,3 +21,5 @@ const ToDropdown = () => {
 }
 
 export default ToDropdown
+
+
