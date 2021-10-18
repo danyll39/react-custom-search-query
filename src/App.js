@@ -7,6 +7,7 @@ import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown
 import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions } from './Data/RestaurantData';
 import React, { useState } from "react";
 
+
 const initialFormData = {
     restaurantIds: [],
     fromDate: "",
@@ -22,6 +23,8 @@ const initialFormData = {
 };
 
 
+
+
 function App() {
     const [restaurantIds, setRestaurantIds] = useState([]);
     const [fromHour, setFromHour] = useState(6);
@@ -30,20 +33,31 @@ function App() {
     const [endDate, setEndDate] = React.useState();
     const [focusedInput, setFocusedInput] = React.useState();
 
+
+
     function onSubmit() {
         console.log("Submit!");
     }
 
+
     return (
         <div className="App">
-            <Grid>
+            <Grid className='Grid'>
                 <Grid.Row>
-                    <Container>
+                    <Container className='Container'>
                         <Segment className="Segment">
                             <Grid centered>
                                 <Grid.Row columns="1">
                                     <Grid.Column textAlign="center">
-                                        <Header as='h1' color='teal'>Custom Search Query Tool</Header>
+                                        <Header
+                                            as='h1'
+                                            block
+                                            color='teal'>Custom Search Query Tool
+                                        </Header>
+
+                                        <Segment raised>
+                                            HOW IT WORKS:Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio pellentesque diam volutpat commodo sed egestas egestas. Fusce id velit ut tortor pretium viverra suspendisse potenti nullam. Vestibulum sed arcu non odio euismod. Vitae nunc sed velit dignissim sodales. Nunc sed augue lacus viverra vitae. Amet tellus cras adipiscing enim eu turpis egestas pretium. Massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada proin. Enim sit amet venenatis urna cursus. Sem integer vitae justo eget. Posuere ac ut consequat semper viverra. Ut enim blandit volutpat maecenas volutpat blandit. Platea dictumst vestibulum rhoncus est pellentesque. Nullam eget felis eget nunc lobortis mattis aliquam faucibus. Magna eget est lorem ipsum dolor. Lectus nulla at volutpat diam ut venenatis tellus in.
+                                        </Segment>
                                     </Grid.Column>
                                 </Grid.Row>
                                 <Grid.Row columns="1">
@@ -78,6 +92,7 @@ function App() {
                                                 </Form.Field>
 
                                                 <Form.Field
+
                                                     control={Select}
                                                     label={"Transaction Time Start"}
                                                     options={transactionTimeOptions}
