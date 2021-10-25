@@ -1,11 +1,12 @@
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
 import 'react-dates/initialize';
-import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
+import { DateRangePicker, isInclusivelyAfterDay } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
-import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider } from "semantic-ui-react";
+import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Label, Menu, Table } from "semantic-ui-react";
 import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions } from './Data/RestaurantData';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import moment from 'moment';
 
 
 const initialFormData = {
@@ -15,31 +16,99 @@ const initialFormData = {
     fromHour: 6,
     toHour: 29,
     metricCriteria: [{
-        metricCode: undefined,
-        compareType: undefined,
-        value: undefined,
+        metricCode: "",
+        compareType: "",
+        value: "",
         operatorType: "And"
     }]
 };
-
-
 
 
 function App() {
     const [restaurantIds, setRestaurantIds] = useState([]);
     const [fromHour, setFromHour] = useState(6);
     const [toHour, setToHour] = useState(29);
-    const [startDate, setStartDate] = React.useState("");
+    const [startDate, setStartDate] = React.useState();
     const [endDate, setEndDate] = React.useState();
     const [focusedInput, setFocusedInput] = React.useState();
 
+    const [data, setData] = useState([])
+    const [formData, setFormData] = useState([])
+    const [resultData, setResultData] = useState([])
 
 
-    function onSubmit() {
-        console.log("Submit!");
+    function changeValue(data, index) {
+        const newFormData = { ...formData }
+        newFormData.metricCriteria[index]["value"] = Number(data.value)
+        setFormData(newFormData)
     }
 
 
+    //leave empty to get information when page load
+
+
+    function onSubmit() {
+        const formData = {
+            restaurantIds: restaurantIds,
+            fromDate: startDate,
+            toDate: endDate,
+            fromHour: fromHour,
+            toHour: toHour,
+            metricCriteria: [{
+                metricCode: "",
+                compareType: "",
+                value: "",
+                operatorType: "And"
+            }]
+
+        }
+        const userAction = async () => {
+            try {
+                const response = await fetch('https://customsearchqueryapi.azurewebsites.net/Search/Query', {
+                    method: 'POST',
+                    body: JSON.stringify(formData), // string or object
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const resultData = await response.json(); //extract JSON from the http response
+                // do something with myJson
+                console.log('hello')
+                console.log(resultData)
+                setResultData(resultData)
+            } catch (error) {
+                console.log("error", error);
+            }
+        }
+        userAction();
+    
+    }
+
+
+    useEffect(() => {
+        const url = "https://customsearchqueryapi.azurewebsites.net/Search/MetricDefinitions";
+
+        const fetchData = async () => {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log("hello i see you")
+                console.log(data)
+                setData(data);
+
+            } catch (error) {
+                console.log("error", error);
+            }
+        };
+
+        fetchData();
+    }, [])
+
+
+
+
+
+    // console.log(data[1])
     return (
         <div className="App">
             <Grid className='Grid'>
@@ -63,6 +132,7 @@ function App() {
                                 <Grid.Row columns="1">
                                     <Grid.Column>
                                         <Form onSubmit={() => onSubmit()}>
+                                            {/* <Form onSubmit={}> */}
                                             <Form.Field>
                                                 <label style={{ fontWeight: "bold" }}>Restaurant Id</label>
                                                 <Dropdown
@@ -115,6 +185,7 @@ function App() {
                                                     placeholder='Metrics'
                                                     selection
                                                     multiple
+                                                    value={data.metricCode}
                                                 />
 
 
@@ -168,9 +239,44 @@ function App() {
                 </Grid.Row>
                 <Divider hidden></Divider>
                 <Grid.Row>
-                    <Container>
+                    <Container fluid>
                         <Segment>
-                            <h3>Results</h3>
+                            <Table celled compact='very'>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell>Restaurant ID</Table.HeaderCell>
+                                        <Table.HeaderCell>Transaction Date</Table.HeaderCell>
+                                        <Table.HeaderCell>Order Number</Table.HeaderCell>
+                                        {data.map(d => { return <Table.HeaderCell>{d.metricCode}</Table.HeaderCell> })}
+
+                                    </Table.Row>
+                                </Table.Header>
+
+                                <Table.Body>
+                                    <Table.Row>
+                                        {/* {resultData.map(result => { return <Table.Cell>{result}</Table.Cell> })} */}
+                                    </Table.Row>
+                                </Table.Body>
+
+                                {/* <Table.Footer>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan='3'>
+                                            <Menu floated='right' pagination>
+                                                <Menu.Item as='a' icon>
+                                                    <Icon name='chevron left' />
+                                                </Menu.Item>
+                                                <Menu.Item as='a'>1</Menu.Item>
+                                                <Menu.Item as='a'>2</Menu.Item>
+                                                <Menu.Item as='a'>3</Menu.Item>
+                                                <Menu.Item as='a'>4</Menu.Item>
+                                                <Menu.Item as='a' icon>
+                                                    <Icon name='chevron right' />
+                                                </Menu.Item>
+                                            </Menu>
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer> */}
+                            </Table>
                         </Segment>
                     </Container>
                 </Grid.Row>
