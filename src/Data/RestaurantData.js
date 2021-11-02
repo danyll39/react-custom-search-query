@@ -50,7 +50,7 @@ export const restaurantIdOptions = [
         value: 10
     },
 ];
- 
+
 export const transactionTimeOptions = [
     {
         key: 1,
@@ -173,9 +173,9 @@ export const transactionTimeOptions = [
         value: 29
     }
 ];
- 
+
 export const measureOptions = [
-   {
+    {
         key: 1,
         text: "<=",
         value: "LessThanOrEqual"
@@ -201,7 +201,7 @@ export const measureOptions = [
         value: "GreaterThanOrEqual"
     }
 ];
- 
+
 export const metricOptions = [
     {
         key: 1,
@@ -244,7 +244,7 @@ export const metricOptions = [
         value: "RefundAmount"
     }
 ];
- 
+
 export const operatorTypeOptions = [
     {
         key: 1,
@@ -257,3 +257,77 @@ export const operatorTypeOptions = [
         value: "Or"
     }
 ];
+export const metricSymbols = [
+    {
+        key: 1,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 2,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 3,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 4,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 5,
+        text: "$",
+        value: "dollars"
+
+    },
+    {
+        key: 6,
+        text: "$",
+        value: "dollars"
+
+    },
+    {
+        key: 7,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 8,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 9,
+        text: "%",
+        value: "percent"
+
+    },
+    {
+        key: 10,
+        text: "%",
+        value: "percent"
+
+    },
+    {
+        key: 11,
+        text: "",
+        value: ""
+
+    },
+    {
+        key: 12,
+        text: "$",
+        value: "dollars"
+
+    }
+]

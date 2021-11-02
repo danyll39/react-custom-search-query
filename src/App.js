@@ -5,10 +5,10 @@ import { DateRangePicker, isInclusivelyAfterDay } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
 import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Label, Menu, Table } from "semantic-ui-react";
 import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions } from './Data/RestaurantData';
+import dateFormat, { masks } from "dateformat";
 import React, { useState, useEffect } from "react";
-import moment from 'moment';
 
-
+const now = new Date();
 const initialFormData = {
     restaurantIds: [],
     fromDate: "",
@@ -26,22 +26,30 @@ const initialFormData = {
 
 function App() {
     const [restaurantIds, setRestaurantIds] = useState([]);
+    const [metricCode, setMetricCode] = useState('')
+    const [compareTypeOptions, setCompareTypeOptions] = useState('')
+    const [value, setValue] = useState('')
+    const [operatorTypeOptions, setOperatorTypeOptions] = useState('And')
+
+
     const [fromHour, setFromHour] = useState(6);
     const [toHour, setToHour] = useState(29);
     const [startDate, setStartDate] = React.useState();
     const [endDate, setEndDate] = React.useState();
     const [focusedInput, setFocusedInput] = React.useState();
 
-    const [data, setData] = useState([])
+
+
+    const [metrics, setMetrics] = useState([])
     const [formData, setFormData] = useState([])
     const [resultData, setResultData] = useState([])
 
 
-    function changeValue(data, index) {
-        const newFormData = { ...formData }
-        newFormData.metricCriteria[index]["value"] = Number(data.value)
-        setFormData(newFormData)
-    }
+    // function changeValue(data, index) {
+    //     const newFormData = { ...formData }
+    //     newFormData.metricCriteria[index]['value'] = Number(data.value)
+    //     setFormData(newFormData)
+    // }
 
 
     //leave empty to get information when page load
@@ -55,13 +63,16 @@ function App() {
             fromHour: fromHour,
             toHour: toHour,
             metricCriteria: [{
-                metricCode: "",
-                compareType: "",
-                value: "",
-                operatorType: "And"
+                metricCode: metricCode,
+                compareType: compareTypeOptions,
+                value: Number(value),
+                operatorType: operatorTypeOptions
+
             }]
 
+
         }
+        console.log(formData)
         const userAction = async () => {
             try {
                 const response = await fetch('https://customsearchqueryapi.azurewebsites.net/Search/Query', {
@@ -71,17 +82,22 @@ function App() {
                         'Content-Type': 'application/json'
                     }
                 });
-                const resultData = await response.json(); //extract JSON from the http response
+                const promise = await response.json(); //extract JSON from the http response
                 // do something with myJson
-                console.log('hello')
-                console.log(resultData)
-                setResultData(resultData)
+                // console.log('hello')
+                // console.log(resultData)
+                // setResultData(resultData)
+                return promise;
             } catch (error) {
                 console.log("error", error);
             }
         }
-        userAction();
-    
+        userAction().then(data => {
+            console.log(data)
+            // console.log(resultData)
+            setResultData(data)
+        });
+
     }
 
 
@@ -94,7 +110,7 @@ function App() {
                 const data = await response.json();
                 console.log("hello i see you")
                 console.log(data)
-                setData(data);
+                setMetrics(data);
 
             } catch (error) {
                 console.log("error", error);
@@ -103,6 +119,8 @@ function App() {
 
         fetchData();
     }, [])
+
+
 
 
 
@@ -138,7 +156,7 @@ function App() {
                                                 <Dropdown
                                                     options={restaurantIdOptions}
                                                     placeholder={"Select Restaurant Id"}
-                                                    multiple
+                                                    multiple={true}
                                                     selection
                                                     onChange={(event, data) => setRestaurantIds(data.value)}
                                                     value={restaurantIds}
@@ -156,6 +174,7 @@ function App() {
                                                             setStartDate(startDate);
                                                             setEndDate(endDate);
                                                         }}
+                                                        isOutsideRange={() => false}
                                                         focusedInput={focusedInput}
                                                         onFocusChange={(focusedInput) => setFocusedInput(focusedInput)}
                                                     />
@@ -184,8 +203,8 @@ function App() {
                                                     options={metricOptions}
                                                     placeholder='Metrics'
                                                     selection
-                                                    multiple
-                                                    value={data.metricCode}
+                                                    // value={metricOptions}
+                                                    onChange={(event, data) => setMetricCode(data.value)}
                                                 />
 
 
@@ -196,11 +215,15 @@ function App() {
                                                     placeholder='Measure Options'
                                                     selection
                                                     size='mini'
+                                                    // value={measureOptions}
+                                                    onChange={(event, data) => setCompareTypeOptions(data.value)}
 
                                                 />
                                                 <Form.Input
                                                     fluid label='Value'
-                                                    placeholder='Value' />
+                                                    placeholder='Value'
+                                                    onChange={(event, data) => setValue(data.value)}
+                                                />
                                             </Form.Group>
 
                                             <Form.Group>
@@ -247,35 +270,53 @@ function App() {
                                         <Table.HeaderCell>Restaurant ID</Table.HeaderCell>
                                         <Table.HeaderCell>Transaction Date</Table.HeaderCell>
                                         <Table.HeaderCell>Order Number</Table.HeaderCell>
-                                        {data.map(d => { return <Table.HeaderCell>{d.metricCode}</Table.HeaderCell> })}
+                                        <Table.HeaderCell>Order Time</Table.HeaderCell>
+                                        {metrics.map((m, index) => { return <Table.HeaderCell key={index}>{m.metricCode}</Table.HeaderCell> })}
+                                        
 
                                     </Table.Row>
                                 </Table.Header>
+                                {resultData &&
+                                    <Table.Body>
+                                        {resultData.map((data, index) => {
+                                            // console.log(resultData)
+                                            return (
+                                                <Table.Row key={index}>
+                                                    <Table.Cell>
+                                                        {data["restaurantId"]}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {dateFormat(now, data["busDt"])}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {data["orderNumber"]}
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {data["orderTime"]}
+                                                    </Table.Cell>
+                                                 
+                                                    {
+                                                        metrics.map((m, index2) => {
+                                                            
+                                                            const fieldName = m.metricCode[0].toLowerCase() +
+                                                                m.metricCode.substring(1);
+                                                            return (
+                                                                <Table.Cell key={index2}>
+                                                                    {data[fieldName]}
+                                                                </Table.Cell>
+                                                            )
+                                                        })
+                                                    }
+                                                </Table.Row>
+                                            )
+                                        })}
 
-                                <Table.Body>
-                                    <Table.Row>
+
                                         {/* {resultData.map(result => { return <Table.Cell>{result}</Table.Cell> })} */}
-                                    </Table.Row>
-                                </Table.Body>
 
-                                {/* <Table.Footer>
-                                    <Table.Row>
-                                        <Table.HeaderCell colSpan='3'>
-                                            <Menu floated='right' pagination>
-                                                <Menu.Item as='a' icon>
-                                                    <Icon name='chevron left' />
-                                                </Menu.Item>
-                                                <Menu.Item as='a'>1</Menu.Item>
-                                                <Menu.Item as='a'>2</Menu.Item>
-                                                <Menu.Item as='a'>3</Menu.Item>
-                                                <Menu.Item as='a'>4</Menu.Item>
-                                                <Menu.Item as='a' icon>
-                                                    <Icon name='chevron right' />
-                                                </Menu.Item>
-                                            </Menu>
-                                        </Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Footer> */}
+                                    </Table.Body>
+
+                                }
                             </Table>
                         </Segment>
                     </Container>
