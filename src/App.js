@@ -3,7 +3,7 @@ import 'semantic-ui-css/semantic.min.css';
 import 'react-dates/initialize';
 import { DateRangePicker, isInclusivelyAfterDay } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
-import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Label, Menu, Table } from "semantic-ui-react";
+import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Label, Menu, Pagination, Table } from "semantic-ui-react";
 import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions } from './Data/RestaurantData';
 import dateFormat, { masks } from "dateformat";
 import React, { useState, useEffect } from "react";
@@ -42,7 +42,15 @@ function App() {
 
     const [metrics, setMetrics] = useState([])
     const [formData, setFormData] = useState([])
+
     const [resultData, setResultData] = useState([])
+    // const [loading, setLoading] = useState(false)
+    // const [currentPage, setCurrentPage] = useState(1)
+    // const [postsPerPage, setPostsPerPage] = useState(20)
+   
+
+
+
 
 
     // function changeValue(data, index) {
@@ -105,12 +113,14 @@ function App() {
         const url = "https://customsearchqueryapi.azurewebsites.net/Search/MetricDefinitions";
 
         const fetchData = async () => {
+          
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 console.log("hello i see you")
                 console.log(data)
                 setMetrics(data);
+            
 
             } catch (error) {
                 console.log("error", error);
@@ -122,9 +132,15 @@ function App() {
 
 
 
+    // const indexOfLastPost = currentPage * postsPerPage;
+    // const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    // const currentPosts = resultData.slice(indexOfFirstPost, indexOfLastPost)
 
+const addCriteria = () => {
+    
+  
 
-
+}
 
     // console.log(data[1])
     return (
@@ -234,6 +250,7 @@ function App() {
                                             </Form.Group>
                                             <Form.Field>
                                                 <Button
+                                                   
                                                     color="teal"
                                                     type="submit">
                                                     Add Criteria
@@ -272,7 +289,7 @@ function App() {
                                         <Table.HeaderCell>Order Number</Table.HeaderCell>
                                         <Table.HeaderCell>Order Time</Table.HeaderCell>
                                         {metrics.map((m, index) => { return <Table.HeaderCell key={index}>{m.metricCode}</Table.HeaderCell> })}
-                                        
+
 
                                     </Table.Row>
                                 </Table.Header>
@@ -294,10 +311,10 @@ function App() {
                                                     <Table.Cell>
                                                         {data["orderTime"]}
                                                     </Table.Cell>
-                                                 
+
                                                     {
                                                         metrics.map((m, index2) => {
-                                                            
+
                                                             const fieldName = m.metricCode[0].toLowerCase() +
                                                                 m.metricCode.substring(1);
                                                             return (
@@ -317,7 +334,18 @@ function App() {
                                     </Table.Body>
 
                                 }
+                                <Pagination
+
+                                    boundaryRange={0}
+                                    defaultActivePage={5}
+                                    ellipsisItem={null}
+                                    firstItem={null}
+                                    lastItem={null}
+                                    siblingRange={1}
+                                    totalPages={10}
+                                />
                             </Table>
+
                         </Segment>
                     </Container>
                 </Grid.Row>
