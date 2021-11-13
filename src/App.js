@@ -1,14 +1,13 @@
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
 import 'react-dates/initialize';
-import { DateRangePicker, isInclusivelyAfterDay } from 'react-dates';
+import { DateRangePicker } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
 import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Label, Menu, Pagination, Table } from "semantic-ui-react";
-import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions } from './Data/RestaurantData';
-import dateFormat, { masks } from "dateformat";
+import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions, formatValues, operatorType } from './Data/RestaurantData';
 import React, { useState, useEffect } from "react";
 
-const now = new Date();
+
 const initialFormData = {
     restaurantIds: [],
     fromDate: "",
@@ -22,46 +21,30 @@ const initialFormData = {
         operatorType: "And"
     }]
 };
-
+const initialMetricCriteria = [{
+    metricCode: "",
+    compareType: "",
+    value: "",
+    operatorType: "And"
+}]
 
 function App() {
     const [restaurantIds, setRestaurantIds] = useState([]);
-    const [metricCode, setMetricCode] = useState('')
-    const [compareTypeOptions, setCompareTypeOptions] = useState('')
-    const [value, setValue] = useState('')
-    const [operatorTypeOptions, setOperatorTypeOptions] = useState('And')
 
+    const [metricCriteria, setMetricCriteria] = useState(initialMetricCriteria)
 
     const [fromHour, setFromHour] = useState(6);
     const [toHour, setToHour] = useState(29);
     const [startDate, setStartDate] = React.useState();
     const [endDate, setEndDate] = React.useState();
     const [focusedInput, setFocusedInput] = React.useState();
-
+    const [activePage, setActivePage] = useState(1)
 
 
     const [metrics, setMetrics] = useState([])
-    const [formData, setFormData] = useState([])
 
+    const itemsPerPage = 10
     const [resultData, setResultData] = useState([])
-    // const [loading, setLoading] = useState(false)
-    // const [currentPage, setCurrentPage] = useState(1)
-    // const [postsPerPage, setPostsPerPage] = useState(20)
-   
-
-
-
-
-
-    // function changeValue(data, index) {
-    //     const newFormData = { ...formData }
-    //     newFormData.metricCriteria[index]['value'] = Number(data.value)
-    //     setFormData(newFormData)
-    // }
-
-
-    //leave empty to get information when page load
-
 
     function onSubmit() {
         const formData = {
@@ -70,13 +53,7 @@ function App() {
             toDate: endDate,
             fromHour: fromHour,
             toHour: toHour,
-            metricCriteria: [{
-                metricCode: metricCode,
-                compareType: compareTypeOptions,
-                value: Number(value),
-                operatorType: operatorTypeOptions
-
-            }]
+            metricCriteria: metricCriteria
 
 
         }
@@ -91,18 +68,15 @@ function App() {
                     }
                 });
                 const promise = await response.json(); //extract JSON from the http response
-                // do something with myJson
-                // console.log('hello')
-                // console.log(resultData)
-                // setResultData(resultData)
+
                 return promise;
             } catch (error) {
                 console.log("error", error);
             }
         }
         userAction().then(data => {
-            console.log(data)
-            // console.log(resultData)
+            // console.log(data)
+            console.log(resultData)
             setResultData(data)
         });
 
@@ -113,14 +87,14 @@ function App() {
         const url = "https://customsearchqueryapi.azurewebsites.net/Search/MetricDefinitions";
 
         const fetchData = async () => {
-          
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 console.log("hello i see you")
                 console.log(data)
                 setMetrics(data);
-            
+
 
             } catch (error) {
                 console.log("error", error);
@@ -130,19 +104,60 @@ function App() {
         fetchData();
     }, [])
 
+    function changeMetricCriteria(index, propertyName, data) {
+        const metricCriteriaNew = []
+        for (var i = 0; i < metricCriteria.length; i++) {
+            metricCriteriaNew[i] = metricCriteria[i]
+        }
+        if (propertyName === "value") {
+            metricCriteriaNew[index][propertyName] = Number(data.value)
+
+        } else {
+            metricCriteriaNew[index][propertyName] = data.value
+
+        }
+
+        console.log(metricCriteriaNew)
+        setMetricCriteria(metricCriteriaNew)
+    }
 
 
-    // const indexOfLastPost = currentPage * postsPerPage;
-    // const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    // const currentPosts = resultData.slice(indexOfFirstPost, indexOfLastPost)
 
-const addCriteria = () => {
-    
-  
 
-}
+    function addCriteria() {
+        const metricCriteriaNew = []
+        for (var i = 0; i < metricCriteria.length; i++) {
+            metricCriteriaNew[i] = metricCriteria[i]
+        }
+        metricCriteriaNew.push(
+            {
+                metricCode: "",
+                compareType: "",
+                value: "",
+                operatorType: "And"
+            }
+        )
+        setMetricCriteria(metricCriteriaNew)
 
-    // console.log(data[1])
+    }
+
+    function removeCriteria(index) {
+        const metricCriteriaNew = []
+        for (var i = 0; i < metricCriteria.length; i++) {
+            metricCriteriaNew[i] = metricCriteria[i]
+        }
+
+        metricCriteriaNew.splice(index, 1)
+        setMetricCriteria(metricCriteriaNew)
+    }
+
+    function changePage(data) {
+        setActivePage(data.activePage)
+    }
+    const slicedResultsData = resultData.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage)
+
+
+
     return (
         <div className="App">
             <Grid className='Grid'>
@@ -155,7 +170,7 @@ const addCriteria = () => {
                                         <Header
                                             as='h1'
                                             block
-                                            color='teal'>Custom Search Query Tool
+                                            color='green'>Custom Search Query Tool
                                         </Header>
 
                                         <Segment raised>
@@ -166,7 +181,6 @@ const addCriteria = () => {
                                 <Grid.Row columns="1">
                                     <Grid.Column>
                                         <Form onSubmit={() => onSubmit()}>
-                                            {/* <Form onSubmit={}> */}
                                             <Form.Field>
                                                 <label style={{ fontWeight: "bold" }}>Restaurant Id</label>
                                                 <Dropdown
@@ -211,61 +225,76 @@ const addCriteria = () => {
                                                     value={toHour}
                                                     onChange={(event, data) => setToHour(data.value)}
                                                 />
-                                            </Form.Group>.
-                                            <Form.Group widths='equal'>
-                                                <Form.Field
-                                                    control={Select}
-                                                    label='Metrics'
-                                                    options={metricOptions}
-                                                    placeholder='Metrics'
-                                                    selection
-                                                    // value={metricOptions}
-                                                    onChange={(event, data) => setMetricCode(data.value)}
-                                                />
+                                            </Form.Group >
+                                            {metricCriteria.map((criteria, index) => {
+                                                return (
+                                                    <Form.Group key={index} widths='equal'>
+                                                        {metricCriteria.length > 1 &&
+                                                            <Form.Field width={1}>
+                                                                <div >
+                                                                    <Icon name='trash' onClick={() => removeCriteria(index)} />
+                                                                </div>
+                                                            </Form.Field>
+                                                        }
+
+                                                        <Form.Field
+                                                            control={Select}
+                                                            label='Metrics'
+                                                            options={metricOptions}
+                                                            placeholder='Metrics'
+                                                            selection
+                                                            value={metricCriteria[index].metricCode}
 
 
-                                                <Form.Field
-                                                    control={Select}
-                                                    label='Measure Options'
-                                                    options={measureOptions}
-                                                    placeholder='Measure Options'
-                                                    selection
-                                                    size='mini'
-                                                    // value={measureOptions}
-                                                    onChange={(event, data) => setCompareTypeOptions(data.value)}
+                                                            onChange={(event, data) => changeMetricCriteria(index, 'metricCode', data)}
+                                                        />
+                                                        <Form.Field
+                                                            control={Select}
+                                                            label='Measure Options'
+                                                            options={measureOptions}
+                                                            placeholder='Measure Options'
+                                                            selection
+                                                            size='mini'
+                                                            value={metricCriteria[index].compareType}
+                                                           
+                                                            onChange={(event, data) => changeMetricCriteria(index, 'compareType', data)}
+                                                        />
+                                                        <Form.Field
+                                                            control={Input}
+                                                            label='Value'
+                                                            placeholder='Value'
+                                                            value={metricCriteria[index].value}
+                                                            
+                                                            onChange={(event, data) => changeMetricCriteria(index, 'value', data)}
+                                                        />
+                                                        <Form.Field
+                                                            control={Select}
+                                                            label={'Operator Type'}
+                                                            options={operatorTypeOptions}
+                                                            placeholder={'Value'}
+                                                            value={metricCriteria[index].operatorType}
+                                                            
+                                                            onChange={(event, data) => changeMetricCriteria(index, 'operatorType', data)}
+                                                            disabled={index === 0 ? true : false}
+                                                        />
+                                                    </Form.Group>
+                                                );
+                                            })}
 
-                                                />
-                                                <Form.Input
-                                                    fluid label='Value'
-                                                    placeholder='Value'
-                                                    onChange={(event, data) => setValue(data.value)}
-                                                />
-                                            </Form.Group>
+
+
+                                            
 
                                             <Form.Group>
                                                 <Form.Field>
-                                                    {/* <Button onClick={() => addCriteria()} color="violet">Add Criteria</Button> */}
-                                                </Form.Field>
-
-                                            </Form.Group>
-                                            <Form.Field>
-                                                <Button
-                                                   
-                                                    color="teal"
-                                                    type="submit">
-                                                    Add Criteria
-                                                </Button>
-                                            </Form.Field>
-                                            <Form.Group>
-                                                <Form.Field>
-                                                    {/* <Button onClick={() => addCriteria()} color="violet">Add Criteria</Button> */}
+                                                    <Button type="button" onClick={() => addCriteria()} color="violet">Add Criteria</Button>
                                                 </Form.Field>
 
                                             </Form.Group>
                                             <Form.Field>
                                                 <Button
                                                     className="submitButton"
-                                                    color="grey"
+                                                    color="green"
                                                     type="submit">
                                                     Submit
                                                 </Button>
@@ -281,6 +310,34 @@ const addCriteria = () => {
                 <Grid.Row>
                     <Container fluid>
                         <Segment>
+                            <Grid>
+                                <Grid.Row>
+                                    <Grid.Column>
+                                        <h2>Results</h2>
+                                    </Grid.Column>
+                                    <Grid.Column textAlign="right">
+                                        {resultData.length >= itemsPerPage &&
+                                            <Pagination
+
+                                                className={'Pager'}
+                                                size='small'
+                                                activePage={activePage}
+                                                onPageChange={(event, data) => changePage(data)}
+                                                totalPages={Math.ceil(resultData.length / itemsPerPage)}
+
+                                                ellipsisItem={{
+                                                    content: <Icon name='ellipsis horizontal' />,
+                                                    icon: true
+                                                }}
+                                                firstItem={null}
+                                                lastItem={null}
+                                                prevItem={null}
+                                                nextItem={null}
+                                            />
+                                        }
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
                             <Table celled compact='very'>
                                 <Table.Header>
                                     <Table.Row>
@@ -288,28 +345,28 @@ const addCriteria = () => {
                                         <Table.HeaderCell>Transaction Date</Table.HeaderCell>
                                         <Table.HeaderCell>Order Number</Table.HeaderCell>
                                         <Table.HeaderCell>Order Time</Table.HeaderCell>
-                                        {metrics.map((m, index) => { return <Table.HeaderCell key={index}>{m.metricCode}</Table.HeaderCell> })}
+                                        {metrics.map((m, index) => { return <Table.HeaderCell key={index}>{m.alias}</Table.HeaderCell> })}
 
 
                                     </Table.Row>
                                 </Table.Header>
                                 {resultData &&
                                     <Table.Body>
-                                        {resultData.map((data, index) => {
-                                            // console.log(resultData)
+                                        {slicedResultsData.map((data, index) => {
+
                                             return (
                                                 <Table.Row key={index}>
                                                     <Table.Cell>
                                                         {data["restaurantId"]}
                                                     </Table.Cell>
                                                     <Table.Cell>
-                                                        {dateFormat(now, data["busDt"])}
+                                                        {formatValues(data["busDt"], "Date", 0)}
                                                     </Table.Cell>
                                                     <Table.Cell>
                                                         {data["orderNumber"]}
                                                     </Table.Cell>
                                                     <Table.Cell>
-                                                        {data["orderTime"]}
+                                                        {formatValues(data["orderTime"], "Time", 0)}
                                                     </Table.Cell>
 
                                                     {
@@ -319,7 +376,7 @@ const addCriteria = () => {
                                                                 m.metricCode.substring(1);
                                                             return (
                                                                 <Table.Cell key={index2}>
-                                                                    {data[fieldName]}
+                                                                    {formatValues(data[fieldName], m.dataType, m.decimalPlaces)}
                                                                 </Table.Cell>
                                                             )
                                                         })
@@ -329,21 +386,12 @@ const addCriteria = () => {
                                         })}
 
 
-                                        {/* {resultData.map(result => { return <Table.Cell>{result}</Table.Cell> })} */}
+
 
                                     </Table.Body>
 
                                 }
-                                <Pagination
-
-                                    boundaryRange={0}
-                                    defaultActivePage={5}
-                                    ellipsisItem={null}
-                                    firstItem={null}
-                                    lastItem={null}
-                                    siblingRange={1}
-                                    totalPages={10}
-                                />
+                                
                             </Table>
 
                         </Segment>

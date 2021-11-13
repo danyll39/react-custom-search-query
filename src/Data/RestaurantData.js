@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const restaurantIdOptions = [
     {
         key: 1,
@@ -331,3 +333,18 @@ export const metricSymbols = [
 
     }
 ]
+
+
+export function formatValues(value, dataType, decimalPlaces) {
+    if (dataType === "Percent") {
+        return (value * 100).toFixed(decimalPlaces) + "%";
+    } else if (dataType === "Money") {
+        return "$" + value.toFixed(decimalPlaces);
+    } else if (dataType === "Date") {
+        return moment(value).format("MM/DD/YYYY");
+    } else if (dataType === "Time") {
+        return moment(value).format("hh:mm A")
+    } else {
+        return value.toFixed(decimalPlaces);
+    }
+}
