@@ -1,81 +1,51 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
 
 .App {
     text-align: center;
     position: absolute;
     width: 100%;
     height: 100%;
-    font-family: 'Asap', sans-serif;
+    font-family: 'Quicksand', sans-serif;
+    background-color: rgb(187, 185, 185);
+    overflow-x: hidden;
+    
 }
 .Segment {
     color: teal;
 }
 .Grid {
     background-color:gainsboro;
-  
-
+    justify-content: end;
 }
 
 .Container {
-    margin-top: 5%;
-  }
+  margin-top: 25px;
+  box-shadow: 10px 10px grey;
+}
+.Pager {
+float: right;
+}
 
 
-
-  *, *:before, *:after {
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-  }
+h2 {
+  color: teal;
+ 
+}
+.ResultsContainer {
+  margin-bottom: 35px;
+  box-shadow: 10px 10px grey;
   
-  body {
-    font-family: 'Nunito', sans-serif;
-    color: blue;
-  }
-  
+}
+
   table {
     max-width: 960px;
     margin: 10px auto;
-  }
-  
-  caption {
-    font-size: 1.6em;
-    font-weight: 400;
-    padding: 10px 0;
-  }
-  
-  thead th {
-    font-weight: 400;
-    background: #8a97a0;
-    color: #FFF;
-  }
-  
-  Table.Row {
-    background: #f4f7f8;
-    border-bottom: 1px solid #FFF;
-    margin-bottom: 5px;
+    position: relative;
   }
   
   tr:nth-child(even) {
     background: #e8eeef;
   }
   
-  Table.Head, Table.Cell {
-    text-align: left;
-    padding: 20px;
-    font-weight: 300;
-  }
-  
-  tfoot Table.Row {
-    background: none;
-  }
-  
-  tfoot Table.Cell {
-    padding: 10px 2px;
-    font-size: 0.8em;
-    font-style: italic;
-    color: #8a97a0;
-  }
 
+ 

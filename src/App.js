@@ -3,24 +3,12 @@ import 'semantic-ui-css/semantic.min.css';
 import 'react-dates/initialize';
 import { DateRangePicker } from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
-import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Label, Menu, Pagination, Table } from "semantic-ui-react";
+import { Button, Form, Select, Grid, Header, Container, Segment, Input, Dropdown, Icon, Divider, Pagination, Table } from "semantic-ui-react";
 import { restaurantIdOptions, transactionTimeOptions, measureOptions as compareTypeOptions, metricOptions, measureOptions, operatorTypeOptions, formatValues, operatorType } from './Data/RestaurantData';
 import React, { useState, useEffect } from "react";
 
 
-const initialFormData = {
-    restaurantIds: [],
-    fromDate: "",
-    toDate: "",
-    fromHour: 6,
-    toHour: 29,
-    metricCriteria: [{
-        metricCode: "",
-        compareType: "",
-        value: "",
-        operatorType: "And"
-    }]
-};
+
 const initialMetricCriteria = [{
     metricCode: "",
     compareType: "",
@@ -38,13 +26,12 @@ function App() {
     const [startDate, setStartDate] = React.useState();
     const [endDate, setEndDate] = React.useState();
     const [focusedInput, setFocusedInput] = React.useState();
-    const [activePage, setActivePage] = useState(1)
+    const [activePage, setActivePage] = useState(1);
+    const [metrics, setMetrics] = useState([]);
+    const [resultData, setResultData] = useState([]);
 
-
-    const [metrics, setMetrics] = useState([])
 
     const itemsPerPage = 10
-    const [resultData, setResultData] = useState([])
 
     function onSubmit() {
         const formData = {
@@ -54,10 +41,8 @@ function App() {
             fromHour: fromHour,
             toHour: toHour,
             metricCriteria: metricCriteria
-
-
         }
-        console.log(formData)
+    
         const userAction = async () => {
             try {
                 const response = await fetch('https://customsearchqueryapi.azurewebsites.net/Search/Query', {
@@ -75,8 +60,6 @@ function App() {
             }
         }
         userAction().then(data => {
-            // console.log(data)
-            console.log(resultData)
             setResultData(data)
         });
 
@@ -91,8 +74,6 @@ function App() {
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                console.log("hello i see you")
-                console.log(data)
                 setMetrics(data);
 
 
@@ -116,13 +97,8 @@ function App() {
             metricCriteriaNew[index][propertyName] = data.value
 
         }
-
-        console.log(metricCriteriaNew)
         setMetricCriteria(metricCriteriaNew)
     }
-
-
-
 
     function addCriteria() {
         const metricCriteriaNew = []
@@ -138,7 +114,6 @@ function App() {
             }
         )
         setMetricCriteria(metricCriteriaNew)
-
     }
 
     function removeCriteria(index) {
@@ -156,11 +131,9 @@ function App() {
     }
     const slicedResultsData = resultData.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage)
 
-
-
     return (
-        <div className="App">
-            <Grid className='Grid'>
+        <div className="App" >
+            <Grid >
                 <Grid.Row>
                     <Container className='Container'>
                         <Segment className="Segment">
@@ -170,11 +143,12 @@ function App() {
                                         <Header
                                             as='h1'
                                             block
-                                            color='green'>Custom Search Query Tool
+                                            color='teal'
+                                          >Custom Search Query Tool
                                         </Header>
 
                                         <Segment raised>
-                                            HOW IT WORKS:Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio pellentesque diam volutpat commodo sed egestas egestas. Fusce id velit ut tortor pretium viverra suspendisse potenti nullam. Vestibulum sed arcu non odio euismod. Vitae nunc sed velit dignissim sodales. Nunc sed augue lacus viverra vitae. Amet tellus cras adipiscing enim eu turpis egestas pretium. Massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada proin. Enim sit amet venenatis urna cursus. Sem integer vitae justo eget. Posuere ac ut consequat semper viverra. Ut enim blandit volutpat maecenas volutpat blandit. Platea dictumst vestibulum rhoncus est pellentesque. Nullam eget felis eget nunc lobortis mattis aliquam faucibus. Magna eget est lorem ipsum dolor. Lectus nulla at volutpat diam ut venenatis tellus in.
+                                            HOW IT WORKS:  Select Restaurant Id (multiple), Date, Transactions Start Time, Transaction End Time, Metrics, Measure Options, and Value to return restaurant data. Click Add Criteria to add additional metrics, measure options, and operator type. Operator type "And" will return data that meets both Metric Criterias entered and Operator "Or" will return data of both Metrics Criterias entered.
                                         </Segment>
                                     </Grid.Column>
                                 </Grid.Row>
@@ -256,7 +230,6 @@ function App() {
                                                             selection
                                                             size='mini'
                                                             value={metricCriteria[index].compareType}
-                                                           
                                                             onChange={(event, data) => changeMetricCriteria(index, 'compareType', data)}
                                                         />
                                                         <Form.Field
@@ -264,7 +237,6 @@ function App() {
                                                             label='Value'
                                                             placeholder='Value'
                                                             value={metricCriteria[index].value}
-                                                            
                                                             onChange={(event, data) => changeMetricCriteria(index, 'value', data)}
                                                         />
                                                         <Form.Field
@@ -273,7 +245,6 @@ function App() {
                                                             options={operatorTypeOptions}
                                                             placeholder={'Value'}
                                                             value={metricCriteria[index].operatorType}
-                                                            
                                                             onChange={(event, data) => changeMetricCriteria(index, 'operatorType', data)}
                                                             disabled={index === 0 ? true : false}
                                                         />
@@ -281,20 +252,15 @@ function App() {
                                                 );
                                             })}
 
-
-
-                                            
-
                                             <Form.Group>
                                                 <Form.Field>
-                                                    <Button type="button" onClick={() => addCriteria()} color="violet">Add Criteria</Button>
+                                                    <Button type="button" onClick={() => addCriteria()} color="teal">Add Criteria</Button>
                                                 </Form.Field>
-
                                             </Form.Group>
                                             <Form.Field>
                                                 <Button
                                                     className="submitButton"
-                                                    color="green"
+                                                    color="yellow"
                                                     type="submit">
                                                     Submit
                                                 </Button>
@@ -308,17 +274,16 @@ function App() {
                 </Grid.Row>
                 <Divider hidden></Divider>
                 <Grid.Row>
-                    <Container fluid>
+                    <Container className="ResultsContainer">
                         <Segment>
                             <Grid>
                                 <Grid.Row>
-                                    <Grid.Column>
+                                    <Grid.Column className='Results'>
                                         <h2>Results</h2>
                                     </Grid.Column>
-                                    <Grid.Column textAlign="right">
+                                    <Grid.Column textAlign="right" floated='right'>
                                         {resultData.length >= itemsPerPage &&
-                                            <Pagination
-
+                                            <Pagination 
                                                 className={'Pager'}
                                                 size='small'
                                                 activePage={activePage}
@@ -338,7 +303,7 @@ function App() {
                                     </Grid.Column>
                                 </Grid.Row>
                             </Grid>
-                            <Table celled compact='very'>
+                            <Table celled  className="table">
                                 <Table.Header>
                                     <Table.Row>
                                         <Table.HeaderCell>Restaurant ID</Table.HeaderCell>
@@ -384,16 +349,9 @@ function App() {
                                                 </Table.Row>
                                             )
                                         })}
-
-
-
-
                                     </Table.Body>
-
                                 }
-                                
                             </Table>
-
                         </Segment>
                     </Container>
                 </Grid.Row>
