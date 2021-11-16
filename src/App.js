@@ -88,7 +88,7 @@ function App() {
     function changeMetricCriteria(index, propertyName, data) {
         const metricCriteriaNew = []
         for (var i = 0; i < metricCriteria.length; i++) {
-            metricCriteriaNew[i] = metricCriteria[i]
+            metricCriteriaNew[i] = {...metricCriteria[i]}
         }
         if (propertyName === "value") {
             metricCriteriaNew[index][propertyName] = Number(data.value)
